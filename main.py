@@ -3,6 +3,7 @@ import pymorphy2
 import dict
 import re
 import time
+from telebot import types
 
 morph = pymorphy2.MorphAnalyzer(lang='ru')
 
@@ -10,28 +11,65 @@ telebot.apihelper.ENABLE_MIDDLEWARE = True
 
 bot = telebot.TeleBot("5042716699:AAG0tctsEL_zJaVY0PNUSSwNVJA4cfOVouo")
 
+@bot.message_handler(commands=["help"])
+def help_message(message):
+    murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton('/start')
+    item2 = types.KeyboardButton('/help')
+    item3 = types.KeyboardButton('/ask')
 
-# @bot.message_handler(content_types=["text"])
-# def help_message(message):
-#     print('help')
-#     if message.text != '/help':
-#         bot.reply_to(message, 'Вы ввели хуйню')
-#     else:
-#         bot.reply_to(message, '''Все команды:
-# /start - начало этапа 
-# /step1 - первый этап: подача заявки 
-# /step2 - второй этап: регистрация на сайте «Добровольцы России»
-# /step3 - третий этап: запись и отправка короткого видео о себе
-# /step4 - четвертый этап: рекомендации, благодарности, наличие личной книжки волонтёра
-# /step5 - пятый этап: справки о медицинской комиссии, туристическая страховка 
-# /step6 - шестой этап: договор о добровольческой деятельности для ознакомления
-# /step7 - седьмой этап: скан-копия подписанного договора.''')
+    murkup.add(item1, item2, item3)
+    bot.send_message(message.chat.id, '''Привет, {0.first_name}, я Вио! Я создан для того, чтобы помочь волонтерам с этапами прохождения отбора и с часто задаваемыми вопросами. Все команды:
+/start - начало прохождения этапа отбора 
+/help - знакомство с Вио 
+/ask - задайде вопрос'''.format(message.from_user), reply_markup = murkup)
+
+@bot.message_handler(commands=["ask"])
+def ask_message(message: telebot.types.Message):
+    bot.reply_to(message, 'Задайте свой вопрос')
+
+    @bot.message_handler(content_types=["text"])
+    def askinner_message(message):
+        words = message.text
+        words = words.replace("?", "").split(" ")
+        phrase=[]
+        for word in words:
+            word = morph.parse(word)[0].normal_form  # морфируем слово вопроса в нормальную словоформу
+            # Нормализуем словоформу каждого слова и соберем обратно фразу
+            phrase.append(word)
+        answer = ''
+        for i in phrase:
+            for key, value in dict.thisdict.items(): 
+                arrKey = key.split(' ')
+                for k in arrKey:
+                    if k == i:
+                        print('совпАЛООО')
+                        answer = value
+                        break
+        if answer == '':
+            bot.reply_to(message, '''Извините, я не смог найти ответа на ваш вопрос. Не могли бы вы перефразировать вопрос?''')
+            return 
+        else:
+            bot.reply_to(message, answer)
+            return 
+    print('ask_message')
+    return
+print('main_ask_message')
 
 @bot.message_handler(commands=['start'])
 def start_message(message: telebot.types.Message):
-    text = '''Добрый день, меня зовут Вио! Вы можете начать общение со мной с команды /start. Во время анкетирования важно соблюдать порядок прохождения этапа. Также после прохождения всех этапов мне можно задавать вопросы. Буду рад вам помочь!'''
-    bot.reply_to(message, text)
-    bot.reply_to(message, 'Если вы заполнили форму, введите команду /step1')
+    murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton('/start')
+    item2 = types.KeyboardButton('/help')
+    item3 = types.KeyboardButton('/ask')
+    murkup.add(item1, item2, item3)
+    text = '''Добрый день,{0.first_name}, меня зовут Вио! Далее будет проходить анкетирование, во время которого важно соблюдать порядок прохождения этапа. 
+Все доступные команды:
+/start - начало прохождения этапа отбора 
+/help - знакомство с Вио 
+/ask - задайде вопрос'''.format(message.from_user)
+    bot.send_message(message.chat.id, text, reply_markup = murkup)
+    bot.reply_to(message, 'Если вы готовы начать, введите команду /step1')
 
     @bot.message_handler(commands=['step1'])
     def step1_message(message: telebot.types.Message):
@@ -43,7 +81,7 @@ def start_message(message: telebot.types.Message):
 Прием заявок на 2022 год начинается с 05.12.2021 года
 Обращаем внимание, что, заполняя форму, вы даете согласие на обработку персональных данных в соответствии с «Пользовательским соглашением» и «Политикой конфиденциальности».'''
         bot.reply_to(message, text)
-        bot.reply_to(message, 'Если вы зарегистрировались на сайте, введите команду /step2')
+        bot.reply_to(message, 'Если вы заполнили форму, введите команду /step2')
 
         @bot.message_handler(commands=['step2'])
         def step2_message(message: telebot.types.Message):
@@ -102,35 +140,7 @@ def start_message(message: telebot.types.Message):
 
 Если у вас еще остались ещё вопросы, вы можете их задать мне. Буду рад вам помочь. Ваш Вио!  ''')
                                 #тут вывести все команды 
-                                #тут @bot.message_handler(content_types=["text"])
-                                @bot.message_handler(content_types=["text"])
-                                def ask_message(message):
-                                    words = message.text
-                                    words = words.replace("?", "").split(" ")
-                                    phrase=[]
-                                    for word in words:
-                                        word = morph.parse(word)[0].normal_form  # морфируем слово вопроса в нормальную словоформу
-                                        # Нормализуем словоформу каждого слова и соберем обратно фразу
-                                        phrase.append(word)
-                                    answer = ''
-                                    for i in phrase:
-                                        for key, value in dict.thisdict.items(): 
-                                            arrKey = key.split(' ')
-                                            for k in arrKey:
-                                                if k == i:
-                                                    print('совпАЛООО')
-                                                    answer = value
-                                                    break
-                                    if answer == '':
-                                        bot.reply_to(message, '''Извините, я не смог найти ответа на ваш вопрос. Не могли бы вы перефразировать вопрос?''')
-                                    else:
-                                        bot.reply_to(message, answer)
-                                    
+                                #тут @bot.message_handler(content_types=["text"])          
 #задачи:                                
-# придумать что нибудь для старта
 # придумать куда отправлять данные пользователя
-
-    
-
-
 bot.polling(none_stop=True)
