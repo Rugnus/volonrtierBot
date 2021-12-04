@@ -11,6 +11,12 @@ telebot.apihelper.ENABLE_MIDDLEWARE = True
 
 bot = telebot.TeleBot("5042716699:AAG0tctsEL_zJaVY0PNUSSwNVJA4cfOVouo")
 
+
+@bot.message_handler(content_types=['photo', 'voice', 'audio', 'video', 'location', 'contact', 'sticker'])
+def handle_docs_audio(message):
+    bot.reply_to(message, 'Я вас не понимаю :(')
+
+
 @bot.message_handler(commands=["help"])
 def help_message(message):
     murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
