@@ -2,6 +2,7 @@ from typing import Text
 import telebot
 import pymorphy2
 import dict
+import extension
 import re
 import time
 from telebot import types
@@ -12,24 +13,30 @@ telebot.apihelper.ENABLE_MIDDLEWARE = True
 
 bot = telebot.TeleBot("5042716699:AAG0tctsEL_zJaVY0PNUSSwNVJA4cfOVouo")
 
+
 @bot.message_handler(content_types=['photo', 'voice', 'audio', 'video', 'location', 'contact', 'sticker'])
 def handle_docs_audio(message):
     bot.reply_to(message, 'Я вас не понимаю :(')
 
+
 @bot.message_handler(commands=["help"])
 def help_message(message):
-    murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton('/start')
     item2 = types.KeyboardButton('/help')
     item3 = types.KeyboardButton('/ask')
     item4 = types.KeyboardButton('/cordon')
+    item5 = types.KeyboardButton('/faq')
 
-    murkup.add(item1, item2, item3, item4)
+    markup.add(item1, item2, item3, item4, item5)
     bot.send_message(message.chat.id, '''Привет, {0.first_name}, я Вио! Я создан для того, чтобы помочь волонтерам с этапами прохождения отбора и с часто задаваемыми вопросами. Все команды:
 /start - начало прохождения этапа отбора 
 /help - знакомство с Вио 
-/ask - задайде вопрос
-/cordon - посмотреть информацию о кордонах'''.format(message.from_user), reply_markup = murkup)
+/ask - задайте вопрос
+/cordon - посмотреть информацию о кордонах
+/faq - ответы на наиболее задаваемые вопросы
+'''.format(message.from_user), reply_markup=markup)
+
 
 @bot.message_handler(commands=["ask"])
 def ask_message(message: telebot.types.Message):
@@ -42,7 +49,6 @@ def ask_message(message: telebot.types.Message):
         phrase=[]
         for word in words:
             word = morph.parse(word)[0].normal_form  # морфируем слово вопроса в нормальную словоформу
-            # Нормализуем словоформу каждого слова и соберем обратно фразу
             phrase.append(word)
         answer = ''
         for i in phrase:
@@ -50,7 +56,6 @@ def ask_message(message: telebot.types.Message):
                 arrKey = key.split(' ')
                 for k in arrKey:
                     if k == i:
-                        print('совпАЛООО')
                         answer = value
                         break
         if answer == '':
@@ -58,25 +63,27 @@ def ask_message(message: telebot.types.Message):
             return 
         else:
             bot.reply_to(message, answer)
-            return 
-    print('ask_message')
+            return
     return
-print('main_ask_message')
+
 
 @bot.message_handler(commands=['start'])
 def start_message(message: telebot.types.Message):
-    murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton('/start')
     item2 = types.KeyboardButton('/help')
     item3 = types.KeyboardButton('/ask')
-    murkup.add(item1, item2, item3)
+    item4 = types.KeyboardButton('/faq')
+    markup.add(item1, item2, item3, item4)
     text = '''Добрый день,{0.first_name}, меня зовут Вио! Далее будет проходить анкетирование, во время которого важно соблюдать порядок прохождения этапа. 
 Все доступные команды:
 /start - начало прохождения этапа отбора 
 /help - знакомство с Вио 
 /ask - задайде вопрос
-/cordon - посмотреть информацию о кордонах'''.format(message.from_user)
-    bot.send_message(message.chat.id, text, reply_markup = murkup)
+/cordon - посмотреть информацию о кордонах
+/faq - ответы на наиболее задаваемые вопросы
+'''.format(message.from_user)
+    bot.send_message(message.chat.id, text, reply_markup=markup)
     bot.reply_to(message, 'Если вы готовы начать, введите команду /step1')
 
     @bot.message_handler(commands=['step1'])
@@ -147,13 +154,11 @@ def start_message(message: telebot.types.Message):
 /step7 - седьмой этап: скан-копия подписанного договора.
 
 Если у вас еще остались ещё вопросы, вы можете их задать мне. Буду рад вам помочь. Ваш Вио!  ''')
-                                #тут вывести все команды 
-                                #тут @bot.message_handler(content_types=["text"])    
 
 
 @bot.message_handler(commands=['cordon'])
 def cordon_message(message):
-    murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton('/cordon1')
     item2 = types.KeyboardButton('/cordon2')
     item3 = types.KeyboardButton('/cordon3')
@@ -161,14 +166,16 @@ def cordon_message(message):
     item5 = types.KeyboardButton('/cordon5')
     item6 = types.KeyboardButton('/cordon6')
     item0 = types.KeyboardButton('/help')
-    murkup.add(item1, item2, item3, item4, item5, item6, item0)
+    markup.add(item1, item2, item3, item4, item5, item6, item0)
     bot.send_message(message.chat.id, '''Если вы хотите вернуться к предыдущим этапам, вы можете ввести команды: 
 /cordon1 - начало этапа 
 /cordon2 - первый этап: подача заявки 
 /cordon3 - второй этап: регистрация на сайте «Добровольцы России»
 /cordon4 - третий этап: запись и отправка короткого видео о себе
 /cordon5 - четвертый этап: рекомендации, благодарности, наличие личной книжки волонтёра
-/cordon6 - пятый этап: справки о медицинской комиссии, туристическая страховка '''.format(message.from_user), reply_markup = murkup)
+/cordon6 - пятый этап: справки о медицинской комиссии, туристическая страховка '''
+                     .format(message.from_user), reply_markup=markup)
+
 
 @bot.message_handler(commands=['cordon1'])
 def cordon1_message(message: telebot.types.Message):    
@@ -184,12 +191,14 @@ def cordon1_message(message: telebot.types.Message):
 Мужчины-волонтеры выполняют следующие виды работ: сжигание
 мусора, помощь в строительных и хозяйственных работах. Погрузка\разгрузка вертолетов. Очистка туристических троп. На Камчат-НИРО проводится очищение рыбоучетного заграждения.''')
 
+
 @bot.message_handler(commands=['cordon2'])
 def cordon2_message(message: telebot.types.Message):    
     bot.reply_to(message, '''Инфраструктура кордона: 
 Кордон «Травяной» отличается от кордона «Озерный» количеством туристов, в первую очередь. В течение сезона одна группа сменяет другую. Кордон исключает массовое количество посетителей, так как однодневные эколого-познавательные экскурсии здесь не проводятся. Инфраструктура на кордоне подходит для длительного и комфортного проживания. Есть инспекторский дом, вип-дом для проживания туристов, баня, санузел. Палатка и все сопутствующее снаряжение для палаточного проживания здесь не нужны''')
     bot.reply_to(message, '''Добровольческие работы: 
 Вид работ добровольцев такой же как на Озерном.''')
+
 
 @bot.message_handler(commands=['cordon3'])
 def cordon3_message(message: telebot.types.Message):
@@ -200,6 +209,7 @@ def cordon3_message(message: telebot.types.Message):
     bot.reply_to(message, '''Добровольческие работы: 
 Долину гейзеров ежедневно посещают десятки туристов, поэтому работы для добровольцев очень много. Девушки будут заняты уборкой помещений (жилых комнат, кухни-столовой, туалетов), помогать повару на кухне, заниматься продажей сувенирной продукции. Мужчины разгружают/загружают вертолеты, ремонтируют вертолетные площадки, настильные тропы, сжигают мусор и задействуются во всех хозяйственных и строительных работах.''')
 
+
 @bot.message_handler(commands=['cordon4'])
 def cordon4_message(message: telebot.types.Message):
     bot.reply_to(message, '''Инфраструктура кордона: 
@@ -207,6 +217,7 @@ def cordon4_message(message: telebot.types.Message):
 Немного отличается инфраструктура. На этом кордоне нет повара, поэтому приготовлением пищи занимаются добровольцы.''')
     bot.reply_to(message, '''Добровольческие работы: 
 Условия выполнения добровольческих работ такие же, как и в Долине гейзеров''')
+
 
 @bot.message_handler(commands=['cordon5'])
 def cordon5_message(message: telebot.types.Message):
@@ -216,6 +227,7 @@ def cordon5_message(message: telebot.types.Message):
     bot.reply_to(message, '''Добровольческие работы: 
 Фронт работ добровольца идентичен работам на остальных кордонах. Работа добровольцев здесь нужна с июля по конец сентября.''')
 
+
 @bot.message_handler(commands=['cordon6'])
 def cordon6_message(message: telebot.types.Message):
     bot.reply_to(message, '''Инфраструктура кордона: 
@@ -223,6 +235,84 @@ def cordon6_message(message: telebot.types.Message):
 Здесь проживают сотрудники заповедника, которым нужна помощь в хозяйственных и строительных работах. Инфраструктура и хозяйственное наполнение кордонов подходит для длительного проживания. Есть жилые инспекторские дома, санузлы.''')
 
 
-#задачи:                                
-# придумать куда отправлять данные пользователя
+@bot.message_handler(commands=['faq'])
+def faq_message(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton('/food')
+    item2 = types.KeyboardButton('/living')
+    item3 = types.KeyboardButton('/graphic')
+    item4 = types.KeyboardButton('/prepare')
+    item5 = types.KeyboardButton('/connectivity')
+    item6 = types.KeyboardButton('/contract')
+    item7 = types.KeyboardButton('/departure')
+    item8 = types.KeyboardButton('/waiting')
+    item9 = types.KeyboardButton('/jobs')
+    item10 = types.KeyboardButton('/report')
+    item0 = types.KeyboardButton('/help')
+
+    markup.add(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item0)
+    bot.send_message(message.chat.id, '''Если вы хотите вернуться к предыдущим этапам, вы можете ввести команды: 
+    /food - питание 
+    /living - проживание и условия
+    /graphic - постановка в график
+    /prepare - подготовка к путешествию
+    /connectivity - связь и электричество
+    /contract - подписание договора
+    /departure - отправка
+    /waiting - ожидание отправки
+    /jobs - работа на территориях
+    /report - отзыв,отчет о проделанных работах
+    '''.format(message.from_user), reply_markup=markup)
+
+
+@bot.message_handler(commands=['food'])
+def food_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['питание еда кафе рестораны кушать питаться поесть'])
+
+
+@bot.message_handler(commands=['living'])
+def living_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['проживание условие условия отели ночевка дом жилье жить спать переночевать жить'])
+
+
+@bot.message_handler(commands=['graphic'])
+def graphic_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['график срок'])
+
+
+@bot.message_handler(commands=['prepare'])
+def prepare_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['подготовка путешествие взять'])
+
+
+@bot.message_handler(commands=['connectivity'])
+def connectivity_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['связь электричество интернет'])
+
+
+@bot.message_handler(commands=['contract'])
+def contract_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['подписать договор соглашение'])
+
+
+@bot.message_handler(commands=['departure'])
+def departure_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['отправка отправление когда'])
+
+
+@bot.message_handler(commands=['waiting'])
+def waiting_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['ожидание отправка'])
+
+
+@bot.message_handler(commands=['jobs'])
+def jobs_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['работа заниматься обязанность выполнять делать'])
+
+
+@bot.message_handler(commands=['report'])
+def report_message(message: telebot.types.Message):
+    bot.reply_to(message, dict.thisdict['отзыв отчет'])
+
+
 bot.polling(none_stop=True)
