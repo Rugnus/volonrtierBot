@@ -2,7 +2,6 @@ from typing import Text
 import telebot
 import pymorphy2
 import dict
-import extension
 import re
 import time
 from telebot import types
@@ -29,7 +28,7 @@ def help_message(message):
     item5 = types.KeyboardButton('/faq')
 
     markup.add(item1, item2, item3, item4, item5)
-    bot.send_message(message.chat.id, dict.thisdict.["item1"].format(message.from_user), reply_markup=markup)
+    bot.send_message(message.chat.id, dict.thisdict["item1"].format(message.from_user), reply_markup=markup)
 
 
 @bot.message_handler(commands=["ask"])
