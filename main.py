@@ -1,3 +1,4 @@
+from typing import Text
 import telebot
 import pymorphy2
 import dict
@@ -11,11 +12,9 @@ telebot.apihelper.ENABLE_MIDDLEWARE = True
 
 bot = telebot.TeleBot("5042716699:AAG0tctsEL_zJaVY0PNUSSwNVJA4cfOVouo")
 
-
 @bot.message_handler(content_types=['photo', 'voice', 'audio', 'video', 'location', 'contact', 'sticker'])
 def handle_docs_audio(message):
     bot.reply_to(message, 'Я вас не понимаю :(')
-
 
 @bot.message_handler(commands=["help"])
 def help_message(message):
@@ -23,12 +22,14 @@ def help_message(message):
     item1 = types.KeyboardButton('/start')
     item2 = types.KeyboardButton('/help')
     item3 = types.KeyboardButton('/ask')
+    item4 = types.KeyboardButton('/cordon')
 
-    murkup.add(item1, item2, item3)
+    murkup.add(item1, item2, item3, item4)
     bot.send_message(message.chat.id, '''Привет, {0.first_name}, я Вио! Я создан для того, чтобы помочь волонтерам с этапами прохождения отбора и с часто задаваемыми вопросами. Все команды:
 /start - начало прохождения этапа отбора 
 /help - знакомство с Вио 
-/ask - задайде вопрос'''.format(message.from_user), reply_markup = murkup)
+/ask - задайде вопрос
+/cordon - посмотреть информацию о кордонах'''.format(message.from_user), reply_markup = murkup)
 
 @bot.message_handler(commands=["ask"])
 def ask_message(message: telebot.types.Message):
@@ -73,7 +74,8 @@ def start_message(message: telebot.types.Message):
 Все доступные команды:
 /start - начало прохождения этапа отбора 
 /help - знакомство с Вио 
-/ask - задайде вопрос'''.format(message.from_user)
+/ask - задайде вопрос
+/cordon - посмотреть информацию о кордонах'''.format(message.from_user)
     bot.send_message(message.chat.id, text, reply_markup = murkup)
     bot.reply_to(message, 'Если вы готовы начать, введите команду /step1')
 
@@ -147,6 +149,27 @@ def start_message(message: telebot.types.Message):
 Если у вас еще остались ещё вопросы, вы можете их задать мне. Буду рад вам помочь. Ваш Вио!  ''')
                                 #тут вывести все команды 
                                 #тут @bot.message_handler(content_types=["text"])    
+
+
+@bot.message_handler(commands=['cordon'])
+def cordon_message(message):
+    murkup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton('/cordon1')
+    item2 = types.KeyboardButton('/cordon2')
+    item3 = types.KeyboardButton('/cordon3')
+    item4 = types.KeyboardButton('/cordon4')
+    item5 = types.KeyboardButton('/cordon5')
+    item6 = types.KeyboardButton('/cordon6')
+    item0 = types.KeyboardButton('/help')
+    murkup.add(item1, item2, item3, item4, item5, item6, item0)
+    bot.send_message(message.chat.id, '''Если вы хотите вернуться к предыдущим этапам, вы можете ввести команды: 
+/cordon1 - начало этапа 
+/cordon2 - первый этап: подача заявки 
+/cordon3 - второй этап: регистрация на сайте «Добровольцы России»
+/cordon4 - третий этап: запись и отправка короткого видео о себе
+/cordon5 - четвертый этап: рекомендации, благодарности, наличие личной книжки волонтёра
+/cordon6 - пятый этап: справки о медицинской комиссии, туристическая страховка '''.format(message.from_user), reply_markup = murkup)
+
 @bot.message_handler(commands=['cordon1'])
 def cordon1_message(message: telebot.types.Message):    
     bot.reply_to(message, '''Инфраструктура кордона:
