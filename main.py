@@ -15,7 +15,7 @@ bot = telebot.TeleBot("5042716699:AAG0tctsEL_zJaVY0PNUSSwNVJA4cfOVouo")
 
 @bot.message_handler(content_types=['photo', 'voice', 'audio', 'video', 'location', 'contact', 'sticker'])
 def handle_docs_audio(message):
-    bot.reply_to(message, 'Я вас не понимаю :(')
+    bot.reply_to(message, 'Я вас не понимаю 😢')
 
 
 @bot.message_handler(commands=["help"])
@@ -33,7 +33,7 @@ def help_message(message):
 
 @bot.message_handler(commands=["ask"])
 def ask_message(message: telebot.types.Message):
-    bot.reply_to(message, 'Задайте свой вопрос')
+    bot.reply_to(message, 'Задайте свой вопрос 😇')
 
     @bot.message_handler(content_types=["text"])
     def askinner_message(message):
@@ -52,7 +52,8 @@ def ask_message(message: telebot.types.Message):
                         answer = value
                         break
         if answer == '':
-            bot.reply_to(message, '''Извините, я не смог найти ответа на ваш вопрос. Не могли бы вы перефразировать вопрос?''')
+            bot.reply_to(message, '''Извините, я не смог найти ответа на ваш вопрос 🥺. Не могли бы вы перефразировать вопрос? 
+Или обратитесь с вопросом по номеру: +7(41531)-7-16-52''')
             return 
         else:
             bot.reply_to(message, answer)
@@ -85,17 +86,17 @@ def start_message(message: telebot.types.Message):
             @bot.message_handler(commands=['step3'])
             def step3_message(message: telebot.types.Message):
                 bot.reply_to(message, dict.thisdict["item5"])
-                bot.reply_to(message, 'Если вы отправили которкое видео о себе, введите команду /step4')
+                bot.reply_to(message, 'Если вы записали которкое видео о себе, введите команду /step4')
 
                 @bot.message_handler(commands=['step4'])
                 def step4_message(message: telebot.types.Message):
                     bot.reply_to(message, dict.thisdict["item6"])
-                    bot.reply_to(message, 'Если готовы перейти к следующему шагу, введите команду /step5')
+                    bot.reply_to(message, 'Если вы подготовили рекомендации и/или благодарности, введите команду /step5')
 
                     @bot.message_handler(commands=['step5'])
                     def step5_message(message: telebot.types.Message):
                         bot.reply_to(message, dict.thisdict["item7"])
-                        bot.reply_to(message, 'Если вы отправили справку о прохождении медицинской комиссии и туристическую страховку, введите команду /step6')
+                        bot.reply_to(message, 'Если вы подготовили справку о прохождении медицинской комиссии и туристическую страховку, введите команду /step6')
 
                         @bot.message_handler(commands=['step6'])
                         def step6_message(message: telebot.types.Message):
